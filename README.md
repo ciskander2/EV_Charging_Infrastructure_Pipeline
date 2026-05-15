@@ -1,12 +1,13 @@
 # EV Charging Infrastructure Pipeline
 
 ## 📌 Overview
-
+```text
 This project builds an end-to-end cloud-based data engineering pipeline for analyzing EV charging infrastructure across the United States. The pipeline ingests over 1.6M+ EV charging records from the National Renewable Energy Laboratory (NREL) API, stores raw data in AWS S3, transforms nested JSON into analytics-ready Parquet datasets, and loads processed data into PostgreSQL for large-scale SQL analysis.
 
 The project focuses on identifying gaps in EV charging accessibility, particularly the distribution of fast-charging infrastructure and “charging deserts” that may limit EV adoption.
-
+```
 ---
+
 
 ## ⚙️ Pipeline Architecture
 
