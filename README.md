@@ -19,8 +19,11 @@ Transformation Layer (Parquet Conversion)
     ↓
 PostgreSQL / Supabase Warehouse
     ↓
-SQL Analytics & Infrastructure Insights
-🚀 Key Engineering Features
+```
+---
+
+## SQL Analytics & Infrastructure Insights
+### 🚀 Key Engineering Features
 Scalable ETL pipeline processing 1.6M+ EV charging records
 Resume-safe paginated API ingestion with S3 checkpointing
 Fault-tolerant retry handling and API rate limiting
