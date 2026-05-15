@@ -196,8 +196,11 @@ SQL
 --- 
 
 # 🔐 Security & Configuration
-
+```text
 Sensitive credentials and API keys are managed through environment variables and Docker Compose configuration files to avoid hardcoding secrets into source code.
+
+```
+--- 
 
 # 🚀 Future Improvements
 ```text
