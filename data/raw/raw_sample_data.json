@@ -1,0 +1,47 @@
+{
+  "id": 1517,
+  "station_name": "LADWP - Truesdale Center",
+  "fuel_type_code": "ELEC",
+  "status_code": "E",
+
+  "address": {
+    "street": "11797 Truesdale St",
+    "city": "Sun Valley",
+    "state": "CA",
+    "zip": "91352",
+    "country": "US"
+  },
+
+  "coordinates": {
+    "latitude": 34.2483191527193,
+    "longitude": -118.387971374343
+  },
+
+  "access": {
+    "access_code": "private",
+    "groups_with_access": "Private",
+    "access_days_time": "For fleet use only"
+  },
+
+  "network": {
+    "provider": "SHELL_RECHARGE",
+    "website": "https://www.shell.us/motorist/electric-vehicle-charging.html"
+  },
+
+  "chargers": {
+    "level2_ports": 57,
+    "dc_fast_ports": 2,
+    "connector_types": [
+      "CHADEMO",
+      "J1772",
+      "J1772COMBO"
+    ]
+  },
+
+  "metadata": {
+    "facility_type": "UTILITY",
+    "owner_type_code": "LG",
+    "open_date": "1999-10-15",
+    "updated_at": "2026-02-02T23:16:24Z"
+  }
+}

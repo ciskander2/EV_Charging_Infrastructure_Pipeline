@@ -1,0 +1,19 @@
+station_id,station_name,city,state,latitude,longitude,network,level2_ports,dc_fast_ports,access,status
+1552,LADWP - Harbor Generating Station,Wilmington,CA,33.770508,-118.265628,Non-Networked,12,0,private,E
+38887,3M,St. Paul,MN,44.95121,-92.9952,Non-Networked,2,0,private,E
+25500,Gateway Oaks Metro Center,Sacramento,CA,38.615468,-121.517263,Non-Networked,1,0,private,E
+1531,LADWP - Haynes Power Plant,Long Beach,CA,33.759802,-118.096665,Non-Networked,31,0,private,E
+33177,LADWP - Boylston,Los Angeles,CA,34.059047,-118.256812,Non-Networked,19,0,private,E
+38096,Eversource,Hartford,CT,41.765253,-72.671569,Non-Networked,2,0,private,E
+39414,KEMET Corp,Simpsonville,SC,34.749177,-82.279741,Non-Networked,1,0,private,E
+25171,LADWP - Wilmington District Yard,Wilmington,CA,33.773005,-118.265821,Non-Networked,18,0,private,E
+33183,LADWP - Valley Generating Station,Sun Valley,CA,34.241928,-118.390147,Non-Networked,41,1,private,E
+1525,LADWP - John Ferraro Building,Los Angeles,CA,34.059133,-118.248589,Non-Networked,379,15,private,E
+21713,San Luis Obispo County Air Pollution Control District,San Luis Obispo,CA,35.25939,-120.64492,Non-Networked,1,0,private,E
+29862,City of Vacaville - Police Headquarters,Vacaville,CA,38.35109,-121.993654,Non-Networked,1,0,private,E
+33183,LADWP - Valley Generating Station,Sun Valley,CA,34.241928,-118.390147,Non-Networked,41,1,private,E
+38083,King County - King County Van Distribution Center,Redmond,WA,47.675897,-122.091237,Non-Networked,3,0,private,E
+37681,The Hartford Financial Services Group,Windsor,CT,41.879631,-72.729919,Non-Networked,6,0,private,E
+39294,Eversource Energy Park,Manchester,NH,42.999265,-71.467911,Non-Networked,1,0,private,E
+1572,LADWP - EV Service Center,Los Angeles,CA,34.066801,-118.227605,Non-Networked,43,1,private,E
+21713,San Luis Obispo County Air Pollution Control District,San Luis Obispo,CA,35.25939,-120.64492,Non-Networked,1,0,private,E
