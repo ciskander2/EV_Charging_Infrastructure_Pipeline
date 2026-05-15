@@ -24,6 +24,7 @@ PostgreSQL / Supabase Warehouse
 
 ## SQL Analytics & Infrastructure Insights
 ### 🚀 Key Engineering Features
+```text
 Scalable ETL pipeline processing 1.6M+ EV charging records
 Resume-safe paginated API ingestion with S3 checkpointing
 Fault-tolerant retry handling and API rate limiting
@@ -33,16 +34,25 @@ PostgreSQL analytics warehouse integration
 Apache Airflow DAG orchestration
 Docker Compose containerized deployment
 SQL analytics for EV infrastructure coverage and charger distribution
-🧠 Problem
+```
+--- 
+
+## 🧠 Problem
 
 EV adoption depends not only on the number of charging stations, but on the availability of reliable fast-charging infrastructure.
 
-Key Questions Explored
+## Key Questions Explored
+```text
 Which cities have the strongest EV charging infrastructure?
 Where are “charging deserts” with limited DC fast charging?
 How evenly distributed is fast-charging infrastructure across regions?
 Which areas may become EV adoption bottlenecks?
-⚡ Data Ingestion Pipeline
+```
+--- 
+
+
+## ⚡ Data Ingestion Pipeline
+```text
 Source
 
 National Renewable Energy Laboratory (NREL) API EV charging station infrastructure dataset.
@@ -68,6 +78,8 @@ AWS S3 → Parquet
 
 Nested JSON responses were normalized into analytics-ready tabular datasets using Pandas.
 
+```
+--- 
 Generated Features
 level2_ports
 dc_fast_ports
