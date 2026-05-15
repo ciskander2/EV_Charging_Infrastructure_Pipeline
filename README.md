@@ -174,15 +174,16 @@ Resume-safe ingestion with S3 checkpoint recovery
 
 ## 🛠️ Tech Stack
 
+
+### Cloud & Infrastructure
 ```text
-Cloud & Infrastructure
 AWS S3
 Docker Compose
 Apache Airflow
 ```
 --- 
 
-# Data Engineering
+### Data Engineering
 ```text
 Python
 Pandas
