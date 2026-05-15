@@ -80,6 +80,9 @@ Nested JSON responses were normalized into analytics-ready tabular datasets usin
 
 ```
 --- 
+
+
+```text
 Generated Features
 level2_ports
 dc_fast_ports
@@ -91,8 +94,12 @@ Missing value handling
 Schema normalization
 Column standardization
 Parquet optimization for analytics workloads
-🗄️ Data Warehouse
 
+
+```
+--- 
+## 🗄️ Data Warehouse
+```text
 Processed datasets were loaded into PostgreSQL (Supabase) to support scalable SQL-based analytics.
 
 Example Analytics
@@ -101,7 +108,11 @@ Fast-charging infrastructure density
 EV charging network distribution
 Infrastructure concentration analysis
 Charging desert identification
-📊 Key Metrics
+
+```
+--- 
+## 📊 Key Metrics
+```text
 Infrastructure Score
 
 Weighted metric representing charging capacity:
@@ -111,8 +122,11 @@ Fast-Charging Density
 dc_fast_ports / station_count
 
 Used to identify underserved EV infrastructure regions.
+```
+--- 
 
-🔍 Key Findings
+## 🔍 Key Findings
+```text
 🏜️ Charging Deserts
 
 Cities including:
@@ -123,33 +137,52 @@ Long Beach, CA
 
 contained multiple charging stations but lacked DC fast chargers, limiting long-distance EV usability.
 
-⚡ Infrastructure Leaders
 
+```
+--- 
+## ⚡ Infrastructure Leaders
+```text
 Los Angeles, CA demonstrated the highest infrastructure capacity:
 
 High Level 2 charger concentration
 Strong DC fast charging availability
 Broad network coverage
-⚠️ Quantity vs Usability Gap
+```
+--- 
 
+
+## ⚠️ Quantity vs Usability Gap
+```text
 Several cities showed moderate station counts but limited fast-charging capability, highlighting the difference between infrastructure quantity and real-world usability.
+```
+--- 
 
-📈 Uneven Infrastructure Distribution
+# 📈 Uneven Infrastructure Distribution
 
 DC fast charging infrastructure remains heavily concentrated in a limited number of cities, suggesting unequal EV infrastructure investment across regions.
 
-📊 Pipeline Performance
+## 📊 Pipeline Performance
+```text
 1.6M+ EV charging records processed
 ~429 records/sec API ingestion throughput
 ~1h 54m total orchestrated pipeline runtime
 Automated Airflow DAG orchestration
 Resume-safe ingestion with S3 checkpoint recovery
-🛠️ Tech Stack
+```
+--- 
+
+## 🛠️ Tech Stack
+
+```text
 Cloud & Infrastructure
 AWS S3
 Docker Compose
 Apache Airflow
-Data Engineering
+```
+--- 
+
+# Data Engineering
+```text
 Python
 Pandas
 Parquet
@@ -158,17 +191,26 @@ SQLAlchemy
 Database & Analytics
 PostgreSQL (Supabase)
 SQL
-🔐 Security & Configuration
+```
+--- 
+
+# 🔐 Security & Configuration
 
 Sensitive credentials and API keys are managed through environment variables and Docker Compose configuration files to avoid hardcoding secrets into source code.
 
-🚀 Future Improvements
+# 🚀 Future Improvements
+```text
 Real-time streaming ingestion with Apache Kafka
 Distributed processing with Apache Spark / PySpark
 Automated data quality validation
 CI/CD integration
 Monitoring and alerting framework
 Interactive analytics dashboard (Power BI / Streamlit)
-📄 Resume Summary
+```
+--- 
+# 📄 Resume Summary
+```text
 
 Designed and deployed a cloud-based ETL pipeline ingesting 1.6M+ EV charging infrastructure records from a paginated REST API into AWS S3, transforming raw JSON into Parquet datasets and loading analytics-ready data into PostgreSQL using Apache Airflow and Docker Compose to analyze charging infrastructure coverage and EV adoption bottlenecks.
+```
+--- 
