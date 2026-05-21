@@ -4,6 +4,9 @@ import re
 import requests
 import boto3
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_KEY = os.getenv("NREL_API_KEY")
 BASE_URL = os.getenv(

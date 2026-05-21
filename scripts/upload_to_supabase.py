@@ -3,8 +3,11 @@ import os
 import time
 
 import pandas as pd
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+
+load_dotenv()
 
 S3_BUCKET = os.getenv("S3_BUCKET")
 PROCESSED_KEY = os.getenv("PROCESSED_KEY", "processed/clean_ev_stations.parquet")

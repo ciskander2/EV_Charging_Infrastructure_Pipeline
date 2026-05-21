@@ -4,6 +4,9 @@ import os
 import time
 import boto3
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BUCKET_NAME = os.getenv("S3_BUCKET")
 RAW_PREFIX = os.getenv("RAW_PREFIX", "raw/ev_stations").strip("/") + "/"
