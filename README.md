@@ -499,10 +499,23 @@ This pipeline can answer infrastructure questions such as:
 
 ## Testing and Validation
 
-There is no dedicated automated test suite yet, but the project can be validated with these checks:
+This repository includes a GitHub Actions CI workflow at:
+
+```text
+.github/workflows/ci.yml
+```
+
+The workflow runs automatically on pushes and pull requests to `main`. It validates:
+
+- Python syntax for files in `dags/` and `scripts/`
+- Docker Compose configuration
+- Required SQL files in `sql/`
+- The presence of `.env.example`
+
+You can also run the same style of checks locally:
 
 ```bash
-# Confirm Python files compile
+# Validate Python syntax
 python -m compileall dags scripts
 ```
 
@@ -528,7 +541,7 @@ Suggested future tests:
 - Unit tests for station normalization
 - Unit tests for infrastructure score calculation
 - Integration test for S3 raw-to-processed transformation
-- Airflow DAG import validation in CI
+- Airflow DAG import validation
 - SQL checks for accepted value ranges and null thresholds
 
 ---
@@ -580,7 +593,6 @@ Check that the `scripts/` folder is mounted into the Airflow container and that 
 ## Future Improvements
 
 - Add automated unit tests and integration tests
-- Add CI checks for Python compilation, DAG import validation, and SQL linting
 - Add dbt models for repeatable warehouse transformations
 - Add Great Expectations or Soda checks for data quality
 - Add incremental warehouse loading instead of full table replacement
