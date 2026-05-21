@@ -6,11 +6,15 @@ import boto3
 import os
 
 API_KEY = os.getenv("NREL_API_KEY")
-BASE_URL = "https://developer.nrel.gov/api/alt-fuel-stations/v1.json"
+BASE_URL = os.getenv(
+    "NREL_BASE_URL",
+    "https://developer.nrel.gov/api/alt-fuel-stations/v1.json",
+)
 
-BUCKET = "nyu-de-project-chris"
-PREFIX = "raw/ev_stations"
-LIMIT = 200
+BUCKET = os.getenv("S3_BUCKET")
+PREFIX = os.getenv("RAW_PREFIX", "raw/ev_stations").strip("/")
+LIMIT = int(os.getenv("NREL_PAGE_LIMIT", "200"))
+REQUEST_TIMEOUT = int(os.getenv("NREL_REQUEST_TIMEOUT_SECONDS", "30"))
 
 s3 = boto3.client("s3")
 
@@ -32,9 +36,9 @@ def get_last_page_from_s3(bucket, prefix):
 
 def fetch_with_backoff(url, params, max_retries=6):
     for attempt in range(max_retries):
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
 
-        if response.status_code in [429,502,503,504]:
+        if response.status_code in [429, 502, 503, 504]:
             wait_time = 2 ** attempt
             print(
                 f"{response.status_code} error at offset {params.get('offset')}. "
@@ -60,62 +64,69 @@ def fetch_with_backoff(url, params, max_retries=6):
     return None
 
 
-if not API_KEY:
-    raise ValueError("NREL_API_KEY environment variable is missing")
+def main():
+    if not API_KEY:
+        raise ValueError("NREL_API_KEY environment variable is missing")
+
+    if not BUCKET:
+        raise ValueError("S3_BUCKET environment variable is missing")
+
+    last_page = get_last_page_from_s3(BUCKET, PREFIX)
+    start_page = last_page + 1 if last_page >= 0 else 0
+    offset = start_page * LIMIT
+    page = start_page
+
+    print(f"Resuming from page {page} (offset {offset})")
+
+    total_new = 0
+    total_results = None
+
+    while True:
+        params = {
+            "fuel_type": "ELEC",
+            "limit": LIMIT,
+            "offset": offset,
+            "api_key": API_KEY,
+        }
+
+        data = fetch_with_backoff(BASE_URL, params)
+
+        if data is None:
+            print("Stopping extraction safely due to API limit/end of pagination.")
+            break
+
+        stations = data.get("fuel_stations", [])
+
+        if total_results is None:
+            total_results = data.get("metadata", {}).get("total_results")
+
+        if not stations:
+            print("No more stations returned. Done.")
+            break
+
+        key = f"{PREFIX}/page_{page:05d}.json"
+
+        s3.put_object(
+            Bucket=BUCKET,
+            Key=key,
+            Body=json.dumps(stations),
+            ContentType="application/json",
+        )
+
+        print(f"Uploaded {len(stations)} -> s3://{BUCKET}/{key}")
+
+        total_new += len(stations)
+        page += 1
+        offset += LIMIT
+
+        if total_results and offset >= total_results:
+            print("Reached total_results from metadata. Done.")
+            break
+
+        time.sleep(1)
+
+    print(f"\nDone. Uploaded {total_new} new records starting from page {start_page}.")
 
 
-last_page = get_last_page_from_s3(BUCKET, PREFIX)
-start_page = last_page + 1 if last_page >= 0 else 0
-offset = start_page * LIMIT
-page = start_page
-
-print(f"Resuming from page {page} (offset {offset})")
-
-total_new = 0
-total_results = None
-
-while True:
-    params = {
-        "fuel_type": "ELEC",
-        "limit": LIMIT,
-        "offset": offset,
-        "api_key": API_KEY,
-    }
-
-    data = fetch_with_backoff(BASE_URL, params)
-
-    if data is None:
-        print("Stopping extraction safely due to API limit/end of pagination.")
-        break
-
-    stations = data.get("fuel_stations", [])
-
-    if total_results is None:
-        total_results = data.get("metadata", {}).get("total_results")
-
-    if not stations:
-        print("No more stations returned. Done.")
-        break
-
-    key = f"{PREFIX}/page_{page:05d}.json"
-
-    s3.put_object(
-        Bucket=BUCKET,
-        Key=key,
-        Body=json.dumps(stations),
-        ContentType="application/json",
-    )
-
-    print(f"Uploaded {len(stations)} → s3://{BUCKET}/{key}")
-
-    total_new += len(stations)
-    page += 1
-    offset += LIMIT
-
-    if total_results and offset >= total_results:
-        print("Reached total_results from metadata. Done.")
-        break
-
-    time.sleep(1)
-
-print(f"\nDone. Uploaded {total_new} new records starting from page {start_page}.")
+if __name__ == "__main__":
+    main()

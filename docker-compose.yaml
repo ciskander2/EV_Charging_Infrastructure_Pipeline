@@ -52,11 +52,21 @@ x-airflow-common:
   image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.9.3}
   # build: .
   environment: &airflow-common-env
-    NREL_API_KEY: ${NREL_API_KEY} 
-    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
-    SUPABASE_PASSWORD: ${SUPABASE_PASSWORD}
+    NREL_API_KEY: ${NREL_API_KEY:-} 
+    NREL_BASE_URL: ${NREL_BASE_URL:-https://developer.nrel.gov/api/alt-fuel-stations/v1.json}
+    NREL_PAGE_LIMIT: ${NREL_PAGE_LIMIT:-200}
+    S3_BUCKET: ${S3_BUCKET:-}
+    RAW_PREFIX: ${RAW_PREFIX:-raw/ev_stations}
+    PROCESSED_KEY: ${PROCESSED_KEY:-processed/clean_ev_stations.parquet}
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-}
+    SUPABASE_USER: ${SUPABASE_USER:-}
+    SUPABASE_PASSWORD: ${SUPABASE_PASSWORD:-}
+    SUPABASE_HOST: ${SUPABASE_HOST:-}
+    SUPABASE_PORT: ${SUPABASE_PORT:-5432}
+    SUPABASE_DATABASE: ${SUPABASE_DATABASE:-postgres}
+    SUPABASE_TABLE: ${SUPABASE_TABLE:-ev_stations}
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
@@ -72,7 +82,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-boto3 pandas pyarrow s3fs SQLAlchemy psycopg2-binary requests}
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
@@ -82,7 +92,7 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    - C:/Users/chris/.aws:/home/airflow/.aws:ro
+    - ${AWS_CREDENTIALS_DIR:-~/.aws}:/home/airflow/.aws:ro
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -199,7 +209,7 @@ services:
     command:
       - -c
       - |
-        if [[ -z "${AIRFLOW_UID}" ]]; then
+        if [[ -z "$${AIRFLOW_UID}" ]]; then
           echo
           echo -e "\033[1;33mWARNING!!!: AIRFLOW_UID not set!\e[0m"
           echo "If you are on Linux, you SHOULD follow the instructions below to set "
@@ -242,7 +252,7 @@ services:
           echo
         fi
         mkdir -p /sources/logs /sources/dags /sources/plugins
-        chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        chown -R "$${AIRFLOW_UID:-50000}:0" /sources/{logs,dags,plugins}
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
     environment:

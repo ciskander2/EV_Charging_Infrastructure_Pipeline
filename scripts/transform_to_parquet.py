@@ -1,12 +1,14 @@
 import json
 import logging
+import os
 import time
 import boto3
 import pandas as pd
 
-BUCKET_NAME = "nyu-de-project-chris"
-RAW_PREFIX = "raw/ev_stations/"
-PROCESSED_KEY = "processed/clean_ev_stations.parquet"
+BUCKET_NAME = os.getenv("S3_BUCKET")
+RAW_PREFIX = os.getenv("RAW_PREFIX", "raw/ev_stations").strip("/") + "/"
+PROCESSED_KEY = os.getenv("PROCESSED_KEY", "processed/clean_ev_stations.parquet")
+LOCAL_OUTPUT_PATH = os.getenv("LOCAL_PARQUET_PATH", "/tmp/clean_ev_stations.parquet")
 
 s3 = boto3.client("s3")
 
@@ -14,9 +16,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
-start_time = time.perf_counter()
-
 
 def get_s3_object_with_retry(bucket, key, retries=5):
     for attempt in range(retries):
@@ -30,8 +29,52 @@ def get_s3_object_with_retry(bucket, key, retries=5):
     raise Exception(f"Failed to read {key} after {retries} retries")
 
 
-try:
+def first_present(source, *keys):
+    for key in keys:
+        value = source.get(key)
+        if value is not None:
+            return value
+    return None
+
+
+def normalize_station(station):
+    """Support both NREL API records and the nested sample JSON in this repo."""
+    address = station.get("address") or {}
+    coordinates = station.get("coordinates") or {}
+    network = station.get("network") or {}
+    access = station.get("access") or {}
+    chargers = station.get("chargers") or {}
+
+    return {
+        "station_id": station.get("id"),
+        "station_name": station.get("station_name"),
+        "city": first_present(station, "city") or address.get("city"),
+        "state": first_present(station, "state") or address.get("state"),
+        "latitude": first_present(station, "latitude") or coordinates.get("latitude"),
+        "longitude": first_present(station, "longitude") or coordinates.get("longitude"),
+        "network": first_present(station, "ev_network") or network.get("provider"),
+        "level2_ports": first_present(
+            {"api": first_present(station, "ev_level2_evse_num"), **chargers},
+            "api",
+            "level2_ports",
+        ),
+        "dc_fast_ports": first_present(
+            {"api": first_present(station, "ev_dc_fast_num"), **chargers},
+            "api",
+            "dc_fast_ports",
+        ),
+        "access": first_present(station, "access_code") or access.get("access_code"),
+        "status": station.get("status_code"),
+    }
+
+
+def main():
+    start_time = time.perf_counter()
+
     logging.info("Starting S3 transform pipeline")
+
+    if not BUCKET_NAME:
+        raise ValueError("S3_BUCKET environment variable is missing")
 
     rows = []
 
@@ -49,20 +92,11 @@ try:
             file_obj = get_s3_object_with_retry(BUCKET_NAME, key)
             stations = json.loads(file_obj["Body"].read())
 
+            if isinstance(stations, dict):
+                stations = [stations]
+
             for station in stations:
-                rows.append({
-                    "station_id": station.get("id"),
-                    "station_name": station.get("station_name"),
-                    "city": station.get("city"),
-                    "state": station.get("state"),
-                    "latitude": station.get("latitude"),
-                    "longitude": station.get("longitude"),
-                    "network": station.get("ev_network"),
-                    "level2_ports": station.get("ev_level2_evse_num"),
-                    "dc_fast_ports": station.get("ev_dc_fast_num"),
-                    "access": station.get("access_code"),
-                    "status": station.get("status_code")
-                })
+                rows.append(normalize_station(station))
 
     df = pd.DataFrame(rows)
 
@@ -77,17 +111,19 @@ try:
 
     df["level2_ports"] = df["level2_ports"].fillna(0).astype(int)
     df["dc_fast_ports"] = df["dc_fast_ports"].fillna(0).astype(int)
+    df["station_count"] = 1
+    df["infrastructure_score"] = df["level2_ports"] + (df["dc_fast_ports"] * 20)
+    df["fast_charging_density"] = df["dc_fast_ports"] / df["station_count"]
 
     logging.info("Handled missing values and type casting")
 
-    local_file = "clean_ev_stations.parquet"
     logging.info(f"Final rows written to Parquet: {len(df):,}")
     logging.info(f"Final columns written to Parquet: {df.shape[1]}")
-    df.to_parquet(local_file, index=False)
-    logging.info(f"Saved local Parquet file: {local_file}")
+    df.to_parquet(LOCAL_OUTPUT_PATH, index=False)
+    logging.info(f"Saved local Parquet file: {LOCAL_OUTPUT_PATH}")
 
     s3.upload_file(
-        local_file,
+        LOCAL_OUTPUT_PATH,
         BUCKET_NAME,
         PROCESSED_KEY
     )
@@ -97,5 +133,10 @@ try:
     end_time = time.perf_counter()
     logging.info(f"S3 transform pipeline completed in {end_time - start_time:.2f} seconds")
 
-except Exception:
-    logging.error("Pipeline failed", exc_info=True)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        logging.error("Pipeline failed", exc_info=True)
+        raise

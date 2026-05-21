@@ -23,7 +23,7 @@ with DAG(
 
     load = BashOperator(
         task_id="upload_to_supabase",
-        bash_command="python /opt/airflow/scripts/upload_to_supabase_.py",
+        bash_command="python /opt/airflow/scripts/upload_to_supabase.py",
     )
 
     extract >> transform >> load
