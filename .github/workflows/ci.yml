@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate EV pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Python syntax
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          for folder in ("dags", "scripts"):
+              for path in Path(folder).rglob("*.py"):
+                  ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+                  print(f"syntax ok: {path}")
+          PY
+
+      - name: Validate Docker Compose config
+        run: docker compose config --quiet
+
+      - name: Validate SQL assets exist
+        run: |
+          test -f sql/01_create_ev_stations_table.sql
+          test -f sql/02_analytics_queries.sql
+          test -f sql/03_data_quality_checks.sql
+
+      - name: Validate sample environment file exists
+        run: test -f .env.example
