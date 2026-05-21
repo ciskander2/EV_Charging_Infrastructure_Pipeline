@@ -424,8 +424,8 @@ It includes four analysis queries:
 
 | Query | Purpose |
 |---|---|
-| Query 1 | Finds cities with at least 6 stations and ranks them by lowest DC fast-port density |
-| Query 2 | Calculates city-level estimated charging capacity score |
+| Query 1 | Calculates city-level estimated charging capacity score |
+| Query 2 | Finds cities with at least 6 stations and ranks them by lowest DC fast-port density |
 | Query 3 | Ranks cities by total DC fast-charging ports |
 | Query 4 | Ranks individual stations by estimated charging capacity score |
 

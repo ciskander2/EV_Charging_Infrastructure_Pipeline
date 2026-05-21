@@ -1,18 +1,6 @@
 -- Example analytics queries for the processed EV charging station table.
 
--- Query 1: Cities with at least 6 stations, ordered by lowest DC fast-port density.
-select
-    city,
-    state,
-    count(*) as station_name_count,
-    sum(coalesce(dc_fast_ports, 0)) as dc_fast_ports_count,
-    sum(coalesce(dc_fast_ports, 0))::numeric / nullif(count(*), 0) as dc_charging_port_density
-from public.ev_stations
-group by city, state
-having count(station_name) >= 6
-order by dc_charging_port_density asc, city desc;
-
--- Query 2: City-level estimated charging capacity score.
+-- Query 1: City-level estimated charging capacity score.
 select
     city,
     state,
@@ -23,6 +11,18 @@ select
 from public.ev_stations
 group by city, state
 order by estimated_power_score desc;
+
+-- Query 2: Cities with at least 6 stations, ordered by lowest DC fast-port density.
+select
+    city,
+    state,
+    count(*) as station_name_count,
+    sum(coalesce(dc_fast_ports, 0)) as dc_fast_ports_count,
+    sum(coalesce(dc_fast_ports, 0))::numeric / nullif(count(*), 0) as dc_charging_port_density
+from public.ev_stations
+group by city, state
+having count(station_name) >= 6
+order by dc_charging_port_density asc, city desc;
 
 -- Query 3: City-level DC fast-port totals.
 select
